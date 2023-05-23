@@ -2,11 +2,9 @@ let localStream;
 let remoteStream;
 let peerConnection;
 
-let APP_ID='6f7d262f238443c09c9701e0e9128f0f';
-//6f7d262f238443c09c9701e0e9128f0f
-//'54de675bbac24850943b61c17f8a9e7e'
+let APP_ID="54de675bbac24850943b61c17f8a9e7e";
 let token = null;
-let uid =localStorage.getItem('Uid');//String(Math.floor(Math.random()*10000))
+let uid =localStorage.getItem('Uid');
 let queryString = window.location.search
 let urlParams = new URLSearchParams(queryString)
 console.log(window.location.search)
@@ -128,6 +126,7 @@ let handleMessageFromPeer = async (message,MemberID)=>{
     }
     if(message.type ==='candidate')
     {
+        console.log("candidate get daze")
        if(peerConnection){
         peerConnection.addIceCandidate(message.candidate)
        }
@@ -261,11 +260,16 @@ var isDrawing = false;
 var currentColor = "black";
 
 var currentLineWidth = 1;
-var currentAction = null;
+
 var threeSecondMessageCount=0;
 var speedLimit=false;
-var LimitStartTime=null;
 var NowMousePoint=(0,0);
+var currentAction =    {
+    type: "pencil",
+    color: 'white',
+    lineWidth: currentLineWidth,
+    points: [NowMousePoint]
+};
 let brushSizeInput = document.getElementById("brush-size");
 
 brushSizeInput.addEventListener("input", function() {
@@ -294,7 +298,6 @@ function addDrawingAction(type, color, lineWidth, points) {
     channel.sendMessage(messageObject);
 }
 
-var currentAction = null;
 
 let colorPicker = document.getElementById("color-picker");
 let pickedColor = colorPicker.value;
