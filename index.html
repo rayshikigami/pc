@@ -15,24 +15,26 @@
                 <video class="video-player" id="user1" autoplay playsinline></video>
                 <video class="video-player" id="user2" autoplay playsinline></video>
             </div>
-            <div id="canvas-container">
-                <canvas id="drawing-board" width=800px height=600px></canvas>
-                <div class="tools">
-                    <button id="pencilButton" onclick="setDrawingMode('pencil')">鉛筆</button>
-                    <button id="eraserButton" onclick="setDrawingMode('eraser')">橡皮擦</button>
-                    <input id="brush-size" type="range" min="1" max="10" value="1" />
-                    <button id="clear-canvas">清除畫布</button>
-                    <input type="color" id="color-picker" value="#000000">
+            <div id="sub-container">
+                <div id="canvas-container">
+                    <canvas id="drawing-board" width=600px height=600px></canvas>
+                    <div class="tools">
+                        <button id="pencilButton" onclick="setDrawingMode('pencil')">鉛筆</button>
+                        <button id="eraserButton" onclick="setDrawingMode('eraser')">橡皮擦</button>
+                        <input id="brush-size" type="range" min="1" max="10" value="1" />
+                        <button id="clear-canvas">清除畫布</button>
+                        <input type="color" id="color-picker" value="#000000">
+                    </div>
+                </div>
+                <div id="chat">
+                    <div id="messages"></div>
+                    <input id="input" type="text" />
+                    <button id="send" onclick="sendMessage()">Send</button>     
                 </div>
             </div>
-            <div id="chat">
-                <div id="messages"></div>
-                <input id="input" type="text" />
-                <button id="send" onclick="sendMessage()">Send</button>     
-            </div>
         </div>
-
     </body>
+    
     
 
     <script src="agora-rtm-sdk-1.5.1.js"></script>

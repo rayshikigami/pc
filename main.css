@@ -1,5 +1,5 @@
 .tools button {
-    margin-right: 5px;
+    margin-right: 15px;
 }
 
 .pencil-button {
@@ -15,10 +15,19 @@
 }
 
 #main-container{
+    margin-top: 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
+
+#sub-container {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
 
 #videos{
     display: flex;
@@ -30,7 +39,16 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 10px;
+    margin-right: 10px;
+    flex: 1;
+}
+
+#chat{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 10px;
+    flex: 1;
 }
 
 .tools{
@@ -39,16 +57,10 @@
     width: 100%;
 }
 
-#chat{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 70%;
-}
 
 #messages {
     width: 80%;
-    height: 200px; 
+    height: 400px; 
     overflow-y: auto; 
     border: 1px solid #ccc; 
     padding: 10px; 
