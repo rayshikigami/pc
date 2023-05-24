@@ -127,6 +127,7 @@ let handleMessageFromPeer = async (message,MemberID)=>{
     if(message.type ==='candidate')
     {
         console.log("candidate get daze")
+        console.log(message.candidate)
        if(peerConnection){
         peerConnection.addIceCandidate(message.candidate)
        }
