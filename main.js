@@ -2,6 +2,9 @@ let localStream;
 let remoteStream;
 let peerConnection;
 
+let remoteStream3;
+let peerConnection3;
+
 let APP_ID="54de675bbac24850943b61c17f8a9e7e";
 let token = null;
 let uid =localStorage.getItem('Uid');
@@ -11,7 +14,8 @@ console.log(window.location.search)
 let roomId = urlParams.get("room")
 document.getElementById('messages').innerHTML += `<p>${uid} join the chat.</p>`
 let recoverCanvas=false;//新加入的使用者回復canvas的圖像
-
+var us2=null
+var us3=null//第二和第三個使用者
 if(!roomId)
 {
     window.location = "lobby.html"
@@ -110,46 +114,84 @@ let handleMessageFromChannel = async (message, senderId) => {
 };
 
 let handleUserLeft = (MemberID)=>{
-    document.getElementById('user2').style.display='none'
+    if(MemberID==us2)
+    {
+        document.getElementById('user2').style.display='none';
+        us2=null;
+        document.getElementById('d2').innerHTML=us2
+    }   
+    else if(MemberID==us3)
+    {
+        document.getElementById('user3').style.display='none';
+        us3=null;
+        document.getElementById('d3').innerHTML=us3
+    }
     document.getElementById('messages').innerHTML += `<p>${MemberID} leave the chat.</p>`
 }
 let handleMessageFromPeer = async (message,MemberID)=>{
     message = JSON.parse(message.text)
+    console.log(MemberID)
     console.log(message);
+    console.log("us2",us2)
+    console.log("us3",us3)
     if(message.type === 'offer')
     {
+        if(us2==null)
+        {
+            us2=MemberID
+        }
+        else if(us3==null)
+        {
+            us3=MemberID
+        }
+        console.log("GET OFFER")
         createAnswer(MemberID,message.offer)
     }
     if(message.type ==='answer')
     {
-        addAnswer(message.answer)
+        console.log(message.answer)
+        addAnswer(message.answer,MemberID)
     }
     if(message.type ==='candidate')
     {
         console.log("candidate get daze")
         console.log(message.candidate)
-       if(peerConnection){
+        
+       if(us2==MemberID&&peerConnection){
         peerConnection.addIceCandidate(message.candidate)
+       }
+       else if(us3==MemberID&&peerConnection3)
+       {
+        peerConnection3.addIceCandidate(message.candidate)
        }
     }
    
 }
 let handleUserJoined = async(MemberID) =>{
     console.log("A USER JOIN",MemberID)
+    if(us2==null)
+    {
+        console.log("US2=MEM")
+        us2=MemberID
+    }
+    else if(us3==null)
+    {
+        console.log("US3=MEM")
+        us3=MemberID
+    }
     createOffer(MemberID)
     document.getElementById('messages').innerHTML += `<p>${MemberID} join the chat.</p>`
     //傳送當前畫布給其他用戶
     var NowCanvas=document.getElementById("drawing-board").toDataURL('image/webp')//當前圖片的URL
     console.log(NowCanvas)
     console.log(NowCanvas.length)
-    let chunkSize = 14000;  // 每个分段的字符数
+    let chunkSize = 14000;  // 每段的長度
     let chunks = [];
-
     for (let i = 0; i < NowCanvas.length; i += chunkSize) {
         chunks.push(NowCanvas.substring(i, i + chunkSize));
     }
 
-    // 现在，'chunks'数组包含了分段后的URL字符串
+    //chunks包含分段的URL
     for(let i = 0; i<chunks.length;i++)
     {
         if(i==chunks.length-1)
@@ -168,58 +210,125 @@ let handleUserJoined = async(MemberID) =>{
 
 
 let createPeerConnection = async (MemberID)=>{
-    peerConnection = new RTCPeerConnection(servers)
-
-    remoteStream = new MediaStream()
-    document.getElementById("user2").srcObject = remoteStream
-    document.getElementById("user2").style.display='block'
-    if(!localStream){
-        localStream=await navigator.mediaDevices.getUserMedia({video:true,audio:false})
-        document.getElementById('user1').srcObject = localStream 
-    }
-
-    localStream.getTracks().forEach((track)=>{
-        peerConnection.addTrack(track,localStream)
-    })
-
-    peerConnection.ontrack= (event) =>{
-        event.streams[0].getTracks().forEach((track)=>{
-            remoteStream.addTrack(track)
+    console.log("CPCONNECTION")
+    console.log(us2)
+    console.log(MemberID)
+    if (us2==MemberID)
+    {
+        peerConnection = new RTCPeerConnection(servers)
+        remoteStream = new MediaStream()      
+        console.log("NEW CONNECTION US2:",us2)       
+        document.getElementById("user2").srcObject = remoteStream
+        document.getElementById("user2").style.display='block'
+        document.getElementById('d2').innerHTML=us2
+        if(!localStream){
+            localStream=await navigator.mediaDevices.getUserMedia({video:true,audio:false})
+            document.getElementById('user1').srcObject = localStream 
+        }
+        localStream.getTracks().forEach((track)=>{
+            peerConnection.addTrack(track,localStream)
         })
-    }
-
-    peerConnection.onicecandidate = async (event)=>{
-        if(event.candidate){
-            client.sendMessageToPeer({text:JSON.stringify({"type":"candidate","candidate":event.candidate})},MemberID)
+        peerConnection.ontrack= (event) =>{
+            event.streams[0].getTracks().forEach((track)=>{
+                remoteStream.addTrack(track)
+            })
+        }
+        peerConnection.onicecandidate = async (event)=>{
+            if(event.candidate){
+                client.sendMessageToPeer({text:JSON.stringify({"type":"candidate","candidate":event.candidate})},MemberID)
+            }
         }
     }
+    else if(us3==MemberID)
+    {
+        peerConnection3 = new RTCPeerConnection(servers)
+        remoteStream3 = new MediaStream()
+        console.log("NEW CONNECTION US3:",us3)
+        document.getElementById("user3").srcObject = remoteStream3
+        document.getElementById("user3").style.display='block'
+        document.getElementById('d3').innerHTML=us3
+        if(!localStream){
+            localStream=await navigator.mediaDevices.getUserMedia({video:true,audio:false})
+            document.getElementById('user1').srcObject = localStream 
+        }
+        localStream.getTracks().forEach((track)=>{
+            peerConnection3.addTrack(track,localStream)
+        })
+
+        
+        peerConnection3.ontrack= (event) =>{
+            event.streams[0].getTracks().forEach((track)=>{
+                remoteStream3.addTrack(track)
+            })
+        }
+
+        peerConnection3.onicecandidate = async (event)=>{
+            if(event.candidate){
+                client.sendMessageToPeer({text:JSON.stringify({"type":"candidate","candidate":event.candidate})},MemberID)
+            }
+        }
+    }
+
+   
+
 }
 
 let createOffer = async(MemberID) =>{
-   
+    console.log("COFFER")
+    let offer
     await createPeerConnection(MemberID)
-    let offer = await peerConnection.createOffer()
-    await peerConnection.setLocalDescription(offer)
 
+    if(us2==MemberID)
+    {
+        offer = await peerConnection.createOffer()
+        await peerConnection.setLocalDescription(offer)
+    }
+    else if(us3==MemberID)
+    {
+        offer = await peerConnection3.createOffer()
+        await peerConnection3.setLocalDescription(offer)
+    }
     client.sendMessageToPeer({text:JSON.stringify({"type":"offer","offer":offer})},MemberID)
 }
 
 let createAnswer = async(MemberID,offer) =>{
+    console.log("CAnswer")
+    let answer
     await createPeerConnection(MemberID)
-
-    await peerConnection.setRemoteDescription(offer)
-
-    let answer = await peerConnection.createAnswer()
-    await peerConnection.setLocalDescription(answer)
+    if(us2 == MemberID)
+    {
+        await peerConnection.setRemoteDescription(offer)
+        answer = await peerConnection.createAnswer()
+        await peerConnection.setLocalDescription(answer)
+    }
+    else if (us3==MemberID)
+    {
+        await peerConnection3.setRemoteDescription(offer)
+        answer = await peerConnection3.createAnswer()
+        await peerConnection3.setLocalDescription(answer)
+    }
     client.sendMessageToPeer({text:JSON.stringify({"type":"answer","answer":answer})},MemberID)
 
 }
 
 
-let addAnswer = async(answer)=>{
-    if(!peerConnection.currentRemoteDescription)
+let addAnswer = async(answer,MemberID)=>{
+    console.log(us2)
+    console.log(us3)
+    console.log(MemberID)
+    if(us2==MemberID)
     {
-        peerConnection.setRemoteDescription(answer)
+        if(!peerConnection.currentRemoteDescription)
+        {
+            peerConnection.setRemoteDescription(answer)
+        }
+    }
+    if(us3==MemberID)
+    {
+        if(!peerConnection3.currentRemoteDescription)
+        {
+            peerConnection3.setRemoteDescription(answer)
+        }
     }
 }
 
