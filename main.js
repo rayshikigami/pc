@@ -211,8 +211,8 @@ let handleUserJoined = async(MemberID) =>{
 
 let createPeerConnection = async (MemberID)=>{
     console.log("CPCONNECTION")
-    console.log(us2)
-    console.log(MemberID)
+    //console.log(us2)
+    //console.log(MemberID)
     if (us2==MemberID)
     {
         peerConnection = new RTCPeerConnection(servers)
@@ -274,7 +274,7 @@ let createPeerConnection = async (MemberID)=>{
 }
 
 let createOffer = async(MemberID) =>{
-    console.log("COFFER")
+    //console.log("COFFER")
     let offer
     await createPeerConnection(MemberID)
 
@@ -292,7 +292,7 @@ let createOffer = async(MemberID) =>{
 }
 
 let createAnswer = async(MemberID,offer) =>{
-    console.log("CAnswer")
+    //console.log("CAnswer")
     let answer
     await createPeerConnection(MemberID)
     if(us2 == MemberID)
